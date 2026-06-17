@@ -287,5 +287,8 @@ spark-warehouse/
 # For SBT
 .jvmopts
 
+**/_SUCCESS
+**/*.crc
+**/part-*
 
 # End of https://www.toptal.com/developers/gitignore/api/spark,jupyternotebooks,python
