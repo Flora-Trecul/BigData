@@ -1,5 +1,6 @@
-import os 
+import os
 os.environ["JAVA_HOME"] = "/opt/homebrew/opt/openjdk@17"
+
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder \
@@ -7,9 +8,9 @@ spark = SparkSession.builder \
     .master("local[*]") \
     .getOrCreate()
 
-spark.sparkContext.setLogLevel('ERROR')
+spark.conf.set("spark.sql.repl.eagerEval.enabled", True)
 
-Files = {
+files = {
     "orders":      "data/0_raw/olist_orders_dataset.csv",
     "customers":   "data/0_raw/olist_customers_dataset.csv",
     "order_items": "data/0_raw/olist_order_items_dataset.csv",
@@ -21,19 +22,22 @@ Files = {
     "translation": "data/0_raw/product_category_name_translation.csv",
 }
 
+# Load and display schemas
 dataframes = {}
-for name, path in Files.items() : 
-    df = spark.read.csv(path, header=True, inferSchema=True)
+for name, path in files.items():
+    df = spark.read.csv(path, header=True, inferSchema=True, multiLine=True, escape='"')
     dataframes[name] = df
     print(f"\n{'='*50}")
     print(f"Table : {name}")
-    print(f"Lignes : {df.count()}")
-    print(f"Colonnes : {df.columns}")
+    print(f"Rows : {df.count()}")
+    print(f"Columns : {df.columns}")
     df.printSchema()
 
-
+# Detect join keys
+print("\n" + "="*50)
+print("AUTO-DETECTED JOIN KEYS")
+print("="*50)
 table_names = list(dataframes.keys())
-
 for i in range(len(table_names)):
     for j in range(i + 1, len(table_names)):
         name_a = table_names[i]
@@ -42,11 +46,9 @@ for i in range(len(table_names)):
         cols_b = set(dataframes[name_b].columns)
         common = cols_a & cols_b
         if common:
-            print(f"{name_a} ↔ {name_b} : {common}")    
+            print(f"{name_a} ↔ {name_b} : {common}")
 
-
-for name, path in Files.items():
-    df = spark.read.csv(path, header=True, inferSchema=True)
+# Export to bronze
+for name, df in dataframes.items():
     df.write.mode("overwrite").parquet(f"data/1_bronze/{name}")
-
-print("\nBronze saved ")    
+    print(f"{name} saved to bronze ✅")
