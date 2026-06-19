@@ -1,0 +1,12 @@
+[project]
+name = "BigData"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "ipython>=9.14.1",
+    "jupyter>=1.1.1",
+    "pyspark>=4.1.0",
+    "pyspark-client>=4.1.2",
+    "pyspark-connect>=4.1.2",
+    "requests>=2.34.2",
+]
