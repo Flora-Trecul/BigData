@@ -1,23 +1,33 @@
 # Olist Big Data Pipeline
 
-## Overview
+## 1. Overview
+
 PySpark pipeline to process Brazilian e-commerce data from Olist.
 Raw CSV files are transformed into analytical tables organized in a data lake architecture.
 
-## Data Lake Architecture
 
-| Zone | Folder | Description |
-|------|--------|-------------|
-| Raw | `data/0_raw/` | Original CSV files, unmodified |
-| Bronze | `data/1_bronze/` | Raw data converted to Parquet |
-| Silver | `data/2_silver/` | Cleaned and typed data |
-| Gold | `data/3_gold/` | Business indicators ready for analysis |
+## 2. Architecture
 
-## Dataset
-Brazilian E-Commerce Public Dataset by Olist
-[Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+```
+├── data                # All files (csv and parquet)
+│   ├── 0_raw           # Original CSV files, unmodified
+│   ├── 1_bronze        # Raw data converted to Parquet
+│   ├── 2_silver        # Cleaned and typed data
+│   └── 3_gold          # Data ready for analysis and KPIs
+├── notebooks               # Notebooks detailling data treatment
+│   ├── 1_bronze.ipynb      # Conversion csv to parquet
+│   ├── 2_silver.ipynb      # Data typing and cleaning
+│   └── 3_gold.ipynb        # Data preparation for analysis
+├── pipeline.py         # Full pipeline from raw to gold
+├── pyproject.toml
+├── README.md
+└── uv.lock
+```
 
-## Tables
+
+## 3. Dataset
+
+Brazilian E-Commerce Public Dataset by Olist ([Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce))
 
 | Table | Rows | Description |
 |-------|------|-------------|
@@ -31,7 +41,7 @@ Brazilian E-Commerce Public Dataset by Olist
 | geolocation | 1 000 163 | GPS coordinates by zip code |
 | translation | 71 | Product category name translations |
 
-## Business KPIs
+## 4. Business KPIs
 
 | KPI | Value |
 |-----|-------|
@@ -43,52 +53,49 @@ Brazilian E-Commerce Public Dataset by Olist
 | Top category | Health & Beauty (9.26%) |
 | Top payment method | Credit card (73.97%) |
 
-## Data Quality Issues
 
-| Table | Issue | Action |
-|-------|-------|--------|
-| reviews | Corrupted rows due to newlines in comments | Fixed with `multiLine=True` |
-| reviews | 85 duplicates | Removed with `dropDuplicates()` |
-| reviews | 2 236 rows without order_id | Removed |
-| orders | 14 delivered orders without approval date | Removed |
-| payments | 9 negative payment values | Removed |
-| payments | 3 rows with payment_type = not_defined | Removed |
+## 5. Setup
 
-## Setup
-
-### Requirements
+### A. Requirements
 - Python >= 3.11
 - Java 17
 - uv
+- download [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) dataset and place the 9 csv files in the `data/0_raw` folder
 
-### Installation
+### B. Java Configuration
+**Linux (Ubuntu / Debian)**
+```bash
+sudo apt install openjdk-17-jdk
+uv sync
+```
+
+**MacOS**
 ```bash
 brew install openjdk@17
 echo 'export JAVA_HOME=/opt/homebrew/opt/openjdk@17' >> ~/.zshrc
 source ~/.zshrc
 uv sync
 ```
-### Important for macOS users
-If PySpark cannot find Java, add this line at the top of each script before the imports:
+If PySpark cannot find Java, uncomment this line at the top of each script:
 
 ```python
-import os
 os.environ["JAVA_HOME"] = "/opt/homebrew/opt/openjdk@17"
 ```
 
-### Run
+### C. Run script or notebooks
 
-**Ingestion (Raw → Bronze)**
+**Script**
 ```bash
-uv run python notebooks/ingestion.py
+uv run python pipeline.py
 ```
 
-**Silver (Bronze → Silver)**
-```bash
-uv run python notebooks/silver.py
-```
+**Notebooks**  
+  
+Select kernel (at the top right in VSCode) >> bigdata >> run all cells
 
-**Gold (Silver → Gold)**
-Open `notebooks/3_gold.ipynb` in VS Code and run all cells.
 
-## Project Structure
+## 6. Contributors
+
+- **Sarah Azzi** - [Github](https://https://github.com/SarahAzzI)
+- **Flora Trecul** - [Github](https://github.com/Flora-Trecul)
+- **Ethan Puype** - [Github](https://github.com/NICHIKU)
