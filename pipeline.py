@@ -1,15 +1,22 @@
-import os
+import os, sys
 from pyspark.sql import SparkSession
 from pyspark.sql.types import DecimalType, ShortType
 from pyspark.sql import functions as F
 
 
-# os.environ["JAVA_HOME"] = "/opt/homebrew/opt/openjdk@17"
+os.environ["SPARK_CONNECT_MODE_ENABLED"] = "0"
+
+if sys.platform == "darwin":
+    os.environ["JAVA_HOME"] = "/opt/homebrew/opt/openjdk@17"
+elif sys.platform.startswith("linux"):
+    os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-17-openjdk-amd64"
+    os.environ["SPARK_LOCAL_IP"] = "127.0.0.1"
 
 spark = SparkSession.builder \
     .master("local[*]") \
-    .appName("Olist-Ingestion") \
+    .appName("Bigdata") \
     .config("spark.sql.repl.eagerEval.enabled", "true") \
+    .config("spark.driver.bindAddress", "127.0.0.1") \
     .getOrCreate()
 
 print("Spark session started ✅")
